@@ -32,7 +32,7 @@ BUTTON_GPIO_3 = 13
 BUTTON_GPIO_4 = 19
 
 def internet():
-    conn = httplib.HTTPConnection("www.google.com", timeout=5)
+    conn = httplib.HTTPConnection("www.google.com", timeout=10)
     try:
         conn.request("HEAD", "/")
         conn.close()
@@ -43,6 +43,29 @@ def internet():
         conn.close()
         return False
 
+
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+
+def checkInternetSocket(host="8.8.8.8", port=53, timeout=10):
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except socket.error as ex:
+        print(ex)
+        return False
 
 def get_display_size(epd_type):
     if epd_type == "2in7_4gray":
@@ -240,7 +263,7 @@ def main(config, config_file):
 
         notifier = sdnotify.SystemdNotifier()
         notifier.notify("READY=1")
-
+        offline_counter = 0
         while True:
 
             if shutting_down:
@@ -286,12 +309,22 @@ def main(config, config_file):
 
             if mode_list[last_mode_ind] == "newblock" and datapulled:
                 time.sleep(10)
-            elif ((time.time() - lastcoinfetch > updatefrequency) or (datapulled==False)) and not internet():
-                showmessage(epd_type, ticker, "Internet is not available! Check your wpa_supplicant.conf", mirror, inverted)
+            elif ((time.time() - lastcoinfetch > updatefrequency) or (datapulled==False)) and not checkInternetSocket():
+                offline_counter += 1
+                if offline_counter > 360:
+                    local_ip = get_ip()
+                    showmessage(epd_type, ticker, "Internet is not available!\nWill retry in 3 minutes.\nCheck your wpa_supplicant.conf\nIp:%s" % str(local_ip), mirror, inverted)
+                    time.sleep(180)
+                    offline_counter = 0
+                else:
+                    display_update = False
+                    time.sleep(10)
             elif display_update:
                 fullupdate(mode_list[last_mode_ind], days_list[days_ind], layout_list[last_layout_ind], inverted, refresh=False)
+                offline_counter = 0
             elif (time.time() - lastcoinfetch > updatefrequency) or (datapulled==False):
                 logging.info("Update ticker after %.2f s" % (time.time() - lastcoinfetch))
+                offline_counter = 0
                 lastcoinfetch=fullupdate(mode_list[last_mode_ind], days_list[days_ind], layout_list[last_layout_ind], inverted)
                 datapulled = True
                 if days_shifting:
@@ -308,6 +341,7 @@ def main(config, config_file):
                         last_layout_ind = 0
             elif newblock_displayed and (time.time() - lastcoinfetch > updatefrequency_after_newblock):
                 logging.info("Update from newblock display after %.2f s" % (time.time() - lastcoinfetch))
+                offline_counter = 0
                 lastcoinfetch=fullupdate(mode_list[last_mode_ind], days_list[days_ind], layout_list[last_layout_ind], inverted)
                 datapulled = True
                 newblock_displayed = False
