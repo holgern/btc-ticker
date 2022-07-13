@@ -17,7 +17,7 @@ import signal
 import atexit
 import sdnotify
 import RPi.GPIO as GPIO
-import waveshare_epd
+from waveshare_epd import *
 import time
 from PIL import Image, ImageOps
 from PIL import ImageFont
@@ -75,23 +75,23 @@ def get_epd(epd_type):
     Use4Gray = False
     Init4Gray = False
     if epd_type == "2in13_V3":
-        epd = waveshare_epd.epd2in13_V3.EPD()
+        epd = epd2in13_V3.EPD()
     elif epd_type == "2in7_4gray":
-        epd = waveshare_epd.epd2in7.EPD()
+        epd = epd2in7.EPD()
         Use4Gray = True
         Init4Gray = True
     elif epd_type == "2in7":
-        epd = waveshare_epd.epd2in7.EPD()
+        epd = epd2in7.EPD()
     elif epd_type == "2in9_V2":
-        epd = waveshare_epd.epd2in9_V2.EPD()
+        epd = epd2in9_V2.EPD()
     elif epd_type == "3in7":
-        epd = waveshare_epd.epd3in7.EPD()
+        epd = epd3in7.EPD()
         Use4Gray = True
     elif epd_type == "7in5_V2":
-        epd = waveshare_epd.epd7in5_V2.EPD()
+        epd = epd7in5_V2.EPD()
         width_first = False
     elif epd_type == "7in5_HD":
-        epd = waveshare_epd.epd7in5_HD.EPD()
+        epd = epd7in5_HD.EPD()
         width_first = False
     else:
         raise Exception("Wrong epd_type")
