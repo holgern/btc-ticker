@@ -122,11 +122,11 @@ def draw_image(epd_type, image=None):
         epd.display(epd.getbuffer(image))
     elif epd_type == "3in7":
         epd = epd3in7.EPD()
-        epd.init(mode=0)
+        epd.init(0)
         if image is None:
             image = Image.new('L', (epd.height, epd.width), 255)
         logging.info("draw")
-        epd.display_4Gray(epd.getbuffer(image))
+        epd.display_4Gray(epd.getbuffer_4Gray(image))
     elif epd_type == "7in5_V2":
         epd = epd7in5_V2.EPD()
         epd.init()
