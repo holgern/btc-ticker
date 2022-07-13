@@ -81,7 +81,7 @@ def get_display_size(epd_type):
         mirror = False
         return epd.width, epd.height, mirror
     elif epd_type == "3in7":
-        epd = epd3in7.EPD(mode=0)
+        epd = epd3in7.EPD()
         mirror = False
         return epd.width, epd.height, mirror
     elif epd_type == "7in5_V2":
@@ -121,8 +121,8 @@ def draw_image(epd_type, image=None):
         logging.info("draw")
         epd.display(epd.getbuffer(image))
     elif epd_type == "3in7":
-        epd = epd3in7.EPD(mode=0)
-        epd.init()
+        epd = epd3in7.EPD()
+        epd.init(mode=0)
         if image is None:
             image = Image.new('L', (epd.height, epd.width), 255)
         logging.info("draw")
