@@ -17,7 +17,7 @@ import signal
 import atexit
 import sdnotify
 import RPi.GPIO as GPIO
-from waveshare_epd import epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2, epd3in7
+import waveshare_epd
 import time
 from PIL import Image, ImageOps
 from PIL import ImageFont
@@ -67,82 +67,63 @@ def checkInternetSocket(host="8.8.8.8", port=53, timeout=10):
         print(ex)
         return False
 
-def get_display_size(epd_type):
-    if epd_type == "2in7_4gray":
-        epd = epd2in7.EPD()
-        mirror = False
-        return epd.width, epd.height, mirror
+
+def get_epd(epd_type):
+    epd = None
+    mirror = False
+    width_first = True
+    Use4Gray = False
+    Init4Gray = False
+    if epd_type == "2in13_V3":
+        epd = waveshare_epd.epd2in13_V3.EPD()
+    elif epd_type == "2in7_4gray":
+        epd = waveshare_epd.epd2in7.EPD()
+        Use4Gray = True
+        Init4Gray = True
     elif epd_type == "2in7":
-        epd = epd2in7.EPD()
-        mirror = False
-        return epd.width, epd.height, mirror
+        epd = waveshare_epd.epd2in7.EPD()
     elif epd_type == "2in9_V2":
-        epd = epd2in9_V2.EPD()
-        mirror = False
-        return epd.width, epd.height, mirror
+        epd = waveshare_epd.epd2in9_V2.EPD()
     elif epd_type == "3in7":
-        epd = epd3in7.EPD()
-        mirror = False
-        return epd.width, epd.height, mirror
+        epd = waveshare_epd.epd3in7.EPD()
+        Use4Gray = True
     elif epd_type == "7in5_V2":
-        epd = epd7in5_V2.EPD()
-        mirror = False
-        return epd.height, epd.width, mirror
+        epd = waveshare_epd.epd7in5_V2.EPD()
+        width_first = False
     elif epd_type == "7in5_HD":
-        epd = epd7in5_HD.EPD()
-        mirror = False
-        return epd.height, epd.width, mirror
+        epd = waveshare_epd.epd7in5_HD.EPD()
+        width_first = False
     else:
         raise Exception("Wrong epd_type")
+    return epd, mirror, width_first, Use4Gray, Init4Gray
+
+
+def get_display_size(epd_type):
+    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd()
+    if width_first:
+        return epd.width, epd.height, mirror
+    else:
+        return epd.height, epd.width, mirror
 
 
 def draw_image(epd_type, image=None):
 #   A visual cue that the wheels have fallen off
+    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd()
     GPIO.setmode(GPIO.BCM)
-    if epd_type == "2in7_4gray":
-        epd = epd2in7.EPD()
+    if Init4Gray:
         epd.Init_4Gray()
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display_4Gray(epd.getbuffer_4Gray(image))
-    elif epd_type == "2in7":
-        epd = epd2in7.EPD()
-        epd.init()
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display(epd.getbuffer(image))
-    elif epd_type == "2in9_V2":
-        epd = epd2in9_V2.EPD()
-        epd.init()
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display(epd.getbuffer(image))
-    elif epd_type == "3in7":
-        epd = epd3in7.EPD()
+    elif Use4Gray:
         epd.init(0)
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display_4Gray(epd.getbuffer_4Gray(image))
-    elif epd_type == "7in5_V2":
-        epd = epd7in5_V2.EPD()
-        epd.init()
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display(epd.getbuffer(image))
-    elif epd_type == "7in5_HD":
-        epd = epd7in5_HD.EPD()
-        epd.init()
-        if image is None:
-            image = Image.new('L', (epd.height, epd.width), 255)
-        logging.info("draw")
-        epd.display(epd.getbuffer(image))
     else:
-        raise Exception("Wrong epd_type")
+        epd.init()
+    if image is None:
+        image = Image.new('L', (epd.height, epd.width), 255)
+    logging.info("draw")
+    if Use4Gray:
+        epd.display_4Gray(epd.getbuffer_4Gray(image))
+    else:
+        epd.display(epd.getbuffer(image))
+    
     epd.sleep()
     setup_GPIO()
 
