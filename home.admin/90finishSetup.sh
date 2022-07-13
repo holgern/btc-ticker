@@ -47,7 +47,7 @@ echo "OK - System is now up to date"
 sudo dphys-swapfile swapoff
 sudo dphys-swapfile uninstall
 sudo update-rc.d dphys-swapfile remove
-sudo apt-get remove --purge -y logrotate triggerhappy dphys-swapfile
+sudo apt-get remove --purge -y logrotate triggerhappy dphys-swapfile pulseaudio*
 sudo apt-get autoremove --purge -y
 sudo apt-get install -y busybox-syslogd
 sudo apt-get remove --purge -y rsyslog

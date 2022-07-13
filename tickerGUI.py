@@ -14,6 +14,8 @@ def get_display_size(epd_type="2in7_4gray"):
         return 176, 264
     elif epd_type == "2in9_V2":
         return 128, 296
+    elif epd_type == "3in7":
+        return 280, 480  
     elif epd_type == "7in5_V2":
         return 480, 800
     else:

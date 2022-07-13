@@ -408,16 +408,16 @@ echo "*** SOFTWARE UPDATE ***"
 # installs like on RaspiBolt
 sudo apt install -y htop git curl bash-completion vim jq dphys-swapfile bsdmainutils
 
-# installs bandwidth monitoring for future statistics
-sudo apt install -y vnstat
 
 # network tools
 sudo apt install -y autossh telnet
 
 # prepare for display graphics mode
-sudo apt install -y fbi
+if [ "${displayClass}" != "eink" ]; then
+  sudo apt install -y fbi
+fi
 
-sudo apt-get install -y qrencode
+# sudo apt-get install -y qrencode
 
 # prepare for powertest
 sudo apt install -y sysbench
@@ -506,8 +506,9 @@ sleep 60
 
 # *** fail2ban ***
 # based on https://stadicus.github.io/RaspiBolt/raspibolt_21_security.html
-echo "*** HARDENING ***"
-sudo apt install -y --no-install-recommends python3-systemd fail2ban
+#echo "*** HARDENING ***"
+# Fails with ro mode
+#sudo apt install -y --no-install-recommends python3-systemd fail2ban
 
 sudo rm -rf /home/admin/bcm2835-1.71
 wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz

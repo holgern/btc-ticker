@@ -17,7 +17,7 @@ import signal
 import atexit
 import sdnotify
 import RPi.GPIO as GPIO
-from waveshare_epd import epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2
+from waveshare_epd import epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2, epd3in7
 import time
 from PIL import Image, ImageOps
 from PIL import ImageFont
@@ -80,6 +80,10 @@ def get_display_size(epd_type):
         epd = epd2in9_V2.EPD()
         mirror = False
         return epd.width, epd.height, mirror
+    elif epd_type == "3in7":
+        epd = epd3in7.EPD()
+        mirror = False
+        return epd.width, epd.height, mirror
     elif epd_type == "7in5_V2":
         epd = epd7in5_V2.EPD()
         mirror = False
@@ -111,6 +115,13 @@ def draw_image(epd_type, image=None):
         epd.display(epd.getbuffer(image))
     elif epd_type == "2in9_V2":
         epd = epd2in9_V2.EPD()
+        epd.init()
+        if image is None:
+            image = Image.new('L', (epd.height, epd.width), 255)
+        logging.info("draw")
+        epd.display(epd.getbuffer(image))
+    elif epd_type == "3in7":
+        epd = epd3in7.EPD()
         epd.init()
         if image is None:
             image = Image.new('L', (epd.height, epd.width), 255)
