@@ -17,7 +17,9 @@ import signal
 import atexit
 import sdnotify
 import RPi.GPIO as GPIO
-from waveshare_epd import epd2in13_V3, epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2, epd3in7
+from waveshare_epd import epd2in13_V2, epd2in13_V3, epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2, epd3in7
+from TP_lib import epd2in13_V3 as TP_epd2in13_V3
+from TP_lib import epd2in9_V2 as TP_epd2in9_V2
 import time
 from PIL import Image, ImageOps
 from PIL import ImageFont
@@ -74,7 +76,13 @@ def get_epd(epd_type):
     width_first = True
     Use4Gray = False
     Init4Gray = False
-    if epd_type == "2in13_V3":
+    FullUpdate = False
+    if epd_type == "2in13_V2":
+        epd = epd2in13_V2.EPD()
+    elif epd_type == "TP_epd2in13_V3":
+        epd = TP_epd2in13_V3.EPD()
+        FullUpdate = True
+    elif epd_type == "2in13_V3":
         epd = epd2in13_V3.EPD()
     elif epd_type == "2in7_4gray":
         epd = epd2in7.EPD()
@@ -84,6 +92,8 @@ def get_epd(epd_type):
         epd = epd2in7.EPD()
     elif epd_type == "2in9_V2":
         epd = epd2in9_V2.EPD()
+    elif epd_type == "TP_2in9_V2":
+        epd = TP_epd2in9_V2.EPD()
     elif epd_type == "3in7":
         epd = epd3in7.EPD()
         Use4Gray = True
@@ -95,11 +105,11 @@ def get_epd(epd_type):
         width_first = False
     else:
         raise Exception("Wrong epd_type")
-    return epd, mirror, width_first, Use4Gray, Init4Gray
+    return epd, mirror, width_first, Use4Gray, Init4Gray, FullUpdate
 
 
 def get_display_size(epd_type):
-    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd(epd_type)
+    epd, mirror, width_first, Use4Gray, Init4Gray, FullUpdate = get_epd(epd_type)
     if width_first:
         return epd.width, epd.height, mirror
     else:
@@ -108,12 +118,14 @@ def get_display_size(epd_type):
 
 def draw_image(epd_type, image=None):
 #   A visual cue that the wheels have fallen off
-    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd(epd_type)
+    epd, mirror, width_first, Use4Gray, Init4Gray, FullUpdate = get_epd(epd_type)
     GPIO.setmode(GPIO.BCM)
     if Init4Gray:
         epd.Init_4Gray()
     elif Use4Gray:
         epd.init(0)
+    elif FullUpdate:
+        epd.init(epd.FULL_UPDATE)
     else:
         epd.init()
     if image is None:

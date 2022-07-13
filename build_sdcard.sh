@@ -579,6 +579,12 @@ cd /home/admin/e-Paper/RaspberryPi_JetsonNano/python
 sudo python3 setup.py install
 cd /home/admin/
 
+sudo rm -rf /home/admin/Touch_e-Paper_HAT/
+sudo -u admin git clone https://github.com/waveshare/Touch_e-Paper_HAT.git
+cd /home/admin/Touch_e-Paper_HAT/python
+sudo python3 setup.py install
+cd /home/admin/
+
 echo "sleeping 60 seconds"
 # sleep for 60 seconds
 sleep 60
