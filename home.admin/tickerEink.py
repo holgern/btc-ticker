@@ -17,7 +17,7 @@ import signal
 import atexit
 import sdnotify
 import RPi.GPIO as GPIO
-from waveshare_epd import *
+from waveshare_epd import epd2in13_V3, epd2in7, epd7in5_HD, epd7in5_V2, epd2in9_V2, epd3in7
 import time
 from PIL import Image, ImageOps
 from PIL import ImageFont
