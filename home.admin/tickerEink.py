@@ -99,7 +99,7 @@ def get_epd(epd_type):
 
 
 def get_display_size(epd_type):
-    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd()
+    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd(epd_type)
     if width_first:
         return epd.width, epd.height, mirror
     else:
@@ -108,7 +108,7 @@ def get_display_size(epd_type):
 
 def draw_image(epd_type, image=None):
 #   A visual cue that the wheels have fallen off
-    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd()
+    epd, mirror, width_first, Use4Gray, Init4Gray = get_epd(epd_type)
     GPIO.setmode(GPIO.BCM)
     if Init4Gray:
         epd.Init_4Gray()
